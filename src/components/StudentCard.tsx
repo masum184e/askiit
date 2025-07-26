@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-interface StudentCardProps {
+export interface StudentCardProps {
   batchId: number;
   studentId: number;
   name: string;
@@ -9,7 +9,7 @@ interface StudentCardProps {
   image: string;
 }
 
-export const StudentCard = ({
+const StudentCard = ({
   batchId,
   studentId,
   name,
@@ -50,3 +50,5 @@ export const StudentCard = ({
     </Link>
   );
 };
+
+export default StudentCard;
