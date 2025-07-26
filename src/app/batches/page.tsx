@@ -14,14 +14,16 @@ const Page = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {batchData.map((batch, index) => (
-        <BatchCard
-          key={index}
-          batchName={batch.batchName}
-          session={batch.session}
-        />
-      ))}
+    <div className="h-[calc(100vh-200px)] overflow-y-auto pr-2 scrollable-hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {batchData.map((batch, index) => (
+          <BatchCard
+            key={index}
+            batchName={batch.batchName}
+            session={batch.session}
+          />
+        ))}
+      </div>
     </div>
   );
 };
