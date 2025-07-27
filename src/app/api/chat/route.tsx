@@ -21,9 +21,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const result = await model.invoke(body.input);
+    // const result = await model.invoke(body.input);
 
-    return NextResponse.json({ response: result.content }, { status: 200 });
+    const stream = new ReadableStream({
+      async start(controller) {
+        // pseudo-code: subscribe to streaming from model
+        const aiStream = await model.stream(body.input);
+
+        for await (const chunk of aiStream) {
+          const textChunk = chunk.text; // extract text from chunk
+          controller.enqueue(new TextEncoder().encode(textChunk));
+        }
+
+        controller.close();
+      },
+    });
+
+    // return NextResponse.json({ response: result.content }, { status: 200 });
+    return new NextResponse(stream, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   } catch (error: unknown) {
     console.error("AI Chat Error:", error);
 

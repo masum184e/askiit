@@ -25,21 +25,31 @@ const Page = () => {
         body: JSON.stringify({ input }),
       });
 
-      const data = await res.json();
-      if (res.ok && data.response) {
-        setChat((prev) => [
-          ...prev,
-          // { role: "user", content: input },
-          { role: "ai", content: data.response },
-        ]);
-      } else {
-        setChat((prev) => [
-          ...prev,
-          { role: "ai", content: "Error: Failed to fetch response." },
-        ]);
+      if (!res.body) throw new Error("ReadableStream not supported");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let aiResponse = "";
+
+      // Append AI message placeholder
+      setChat((prev) => [...prev, { role: "ai" as const, content: "" }]);
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          aiResponse += decoder.decode(value);
+          setChat((prev) => {
+            // Replace last AI message content with updated text
+            const newChat = [...prev];
+            newChat[newChat.length - 1] = { role: "ai", content: aiResponse };
+            return newChat;
+          });
+        }
       }
     } catch (error: unknown) {
-      console.log(error);
+      console.error(error);
       setChat((prev) => [
         ...prev,
         { role: "ai", content: "Error: Something went wrong." },
@@ -63,9 +73,9 @@ const Page = () => {
   return (
     <div>
       <div className="flex-1 flex flex-col items-center justify-center px-4">
-        <div className="max-w-4xl w-full  space-y-8">
+        <div className="max-w-4xl w-full  space-y-8 mb-8">
           {chat.length === 0 && (
-            <div className="mt-8 mb-20 space-y-8 text-center">
+            <div className="mt-12 mb-16 space-y-8 text-center">
               <div className="space-y-4">
                 <h1 className="text-4xl font-bold text-gray-900">
                   How can I help you today?
@@ -205,11 +215,11 @@ const Page = () => {
                   </ReactMarkdown>
                 </div>
               ))}
-              {loading && (
+              {/* {loading && (
                 <div className="text-sm text-gray-400 italic">
                   AI is typing…
                 </div>
-              )}
+              )} */}
               <div ref={endOfMessagesRef} />
             </div>
           )}
