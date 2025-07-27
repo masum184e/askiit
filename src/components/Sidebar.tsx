@@ -53,7 +53,7 @@ export const Sidebar = () => {
         `}
       >
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold text-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent uppercase bitcount-single">
             AskIIT
           </h1>
         </div>
@@ -68,9 +68,9 @@ export const Sidebar = () => {
                   router.push(item.view);
                   setIsOpen(false);
                 }}
-                className={`w-full cursor-pointer flex items-center gap-3 px-4 py-3 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 group ${
+                className={`w-full cursor-pointer flex items-center gap-3 px-4 py-3 text-slate-700 rounded-lg hover:bg-slate-100 transition-all duration-200 group ${
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white"
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 }`}
               >
