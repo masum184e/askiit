@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Logo from "./Logo";
 
 const navigationItems = [
   { icon: MessageCircle, label: "Chat", view: "/chat" },
@@ -53,9 +54,7 @@ export const Sidebar = () => {
         `}
       >
         <div className="p-6">
-          <h1 className="text-2xl font-bold text-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent uppercase bitcount-single">
-            AskIIT
-          </h1>
+          <Logo />
         </div>
 
         <nav className="px-4 space-y-2">
