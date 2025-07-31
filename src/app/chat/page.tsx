@@ -204,10 +204,10 @@ const Page = () => {
               {chat.map((msg, i) => (
                 <div
                   key={i}
-                  className={`p-3 rounded-xl max-w-[80%] ${
+                  className={`text-justify p-3 rounded-xl max-w-[80%] ${
                     msg.role === "user"
                       ? "bg-blue-100 self-end ml-auto"
-                      : "bg-gray-100 self-start mr-auto"
+                      : "bg-gray-200 self-start mr-auto px-4"
                   }`}
                 >
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
