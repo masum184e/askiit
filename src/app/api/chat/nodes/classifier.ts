@@ -4,7 +4,7 @@ export async function classifierNode(
   state: Partial<GraphStateType>
 ): Promise<Partial<GraphStateType>>  {
   const input = state.normalized_query!;
-  let intent: GraphStateType["intent"] = "fallback";
+  let intent: GraphStateType["intent"] = "llmNode" as GraphStateType["intent"];
 
   if (/student|profile|cgpa/i.test(input)) intent = "student";
   else if (/department|program|faculty/i.test(input)) intent = "department";

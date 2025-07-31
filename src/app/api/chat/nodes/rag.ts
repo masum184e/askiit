@@ -13,8 +13,9 @@ function extractText(content: unknown): string {
 }
 
 export async function ragNode(
-    state: Partial<GraphStateType>
-  ): Promise<Partial<GraphStateType>>  {
+  state: Partial<GraphStateType>
+): Promise<Partial<GraphStateType>> {
+  console.log("ragNode called");
   const vectorStore = await loadVectorStore("pdfs");
   const docs = await vectorStore.similaritySearch(state.user_query!, 4);
 

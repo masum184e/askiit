@@ -1,7 +1,7 @@
 import { Annotation } from "@langchain/langgraph";
 
 // Define intent type
-export type Intent = "department" | "faculty" | "student" | "mixed" | "fallback";
+export type Intent = "department" | "faculty" | "student" | "mixed" ;
 
 export const GraphState = Annotation.Root({
   user_query: Annotation<string>(),
