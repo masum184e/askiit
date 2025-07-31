@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { buildGraph } from "./graph";
 import { writeFileSync } from "fs";
 
@@ -6,19 +6,37 @@ interface ChatRequestBody {
   input: string;
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+interface ImageLike {
+  arrayBuffer(): Promise<ArrayBuffer>;
+}
+
+interface DrawableGraph {
+  drawMermaidPng(): Promise<ImageLike>;
+}
+
+async function saveGraphImage(drawableGraph: DrawableGraph) {
+  const graphStateImage = await drawableGraph.drawMermaidPng();
+  const graphStateArrayBuffer = await graphStateImage.arrayBuffer();
+
+  writeFileSync("./graphState.png", new Uint8Array(graphStateArrayBuffer));
+  console.log("Graph image saved.");
+}
+
+export async function POST(req: NextRequest): Promise<Response> {
   try {
     const body = (await req.json()) as ChatRequestBody;
 
     if (!body.input || typeof body.input !== "string") {
-      return NextResponse.json(
-        { error: "Invalid or missing 'input' in request body." },
-        { status: 400 }
-      );
+      return new Response(JSON.stringify({ error: "Invalid input" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    // const result = await model.invoke(body.input);
     const graph = buildGraph();
+
+    // const rawGraph = await graph.getGraphAsync({ xray: false });
+    // await saveGraphImage(rawGraph);
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -29,10 +47,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             (v: { final_answer?: string; rag_answer?: string }) =>
               v?.final_answer || v?.rag_answer
           );
+
           const content =
-            (node as { final_answer?: string; rag_answer?: string })?.final_answer ||
-            (node as { final_answer?: string; rag_answer?: string })?.rag_answer ||
-            "";
+            node?.final_answer || node?.rag_answer || "";
+
           if (content) {
             controller.enqueue(new TextEncoder().encode(content));
           }
@@ -42,16 +60,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       },
     });
 
-    // return NextResponse.json({ response: result.content }, { status: 200 });
-    return new NextResponse(stream, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+      },
     });
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("AI Chat Error:", error);
-
-    return NextResponse.json(
-      { error: "Internal Server Error. Please try again later." },
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
