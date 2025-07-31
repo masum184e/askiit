@@ -7,7 +7,7 @@ export async function classifierNode(
   const input = state.normalized_query!;
   
   const system_prompt = `
-You are a query classifier for a university assistant called AskIIT.
+You are a query classifier for a university assistant.
 
 Classify the following query into one of two categories:
 - "ragNode": if the query is related to faculty members, departments, teachers, or academic structure.
