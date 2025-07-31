@@ -11,18 +11,18 @@ export function buildGraph() {
   const graph = new StateGraph(GraphState)
     .addNode("normalizer", normalizerNode)
     .addNode("classifier", classifierNode)
-    .addNode("llmNode", llmNode)
-    .addNode("ragNode", ragNode)
-    .addNode("assembleNode", assembleNode)
+    .addNode("llm", llmNode)
+    .addNode("rag", ragNode)
+    .addNode("assemble", assembleNode)
     .addEdge("__start__", "normalizer")
     .addEdge("normalizer", "classifier")
     .addConditionalEdges("classifier", router, {
-      "llmNode": "llmNode", 
-      "ragNode": "ragNode",
+      "llmNode": "llm", 
+      "ragNode": "rag",
     })
-    .addEdge("llmNode", "assembleNode")
-    .addEdge("ragNode", "assembleNode")
-    .addEdge("assembleNode", "__end__");
+    .addEdge("llm", "assemble")
+    .addEdge("rag", "assemble")
+    .addEdge("assemble", "__end__");
     
   return graph.compile();
 }
