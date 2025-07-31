@@ -5,6 +5,8 @@ export async function normalizerNode(
 ): Promise<Partial<GraphStateType>> {
   const normalized = state.user_query?.toLowerCase().trim() || "";
 
+  console.log("Normalizer Executed");
+
   return {
     ...state,
     normalized_query: normalized,

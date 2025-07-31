@@ -3,6 +3,9 @@ import { GraphStateType } from "../utils/types";
 export async function assembleNode(
   state: Partial<GraphStateType>
 ): Promise<Partial<GraphStateType>> {
+  
+  console.log("Assemble Node Executed");
+
   const final = state.final_answer ?? state.rag_answer ?? "No answer found.";
 
   return {

@@ -4,7 +4,7 @@ export function router(state: Partial<GraphStateType>): "llmNode" | "ragNode" {
   const intent = state.intent ?? "llmNode";
 
   switch (intent) {
-    case "faculty":
+    case "ragNode":
       return "ragNode";
     default:
       return "llmNode";
