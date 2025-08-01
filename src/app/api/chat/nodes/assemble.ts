@@ -9,16 +9,29 @@ export async function assembleNode(
   const raw_answer = state.final_answer ?? state.rag_answer ?? "No answer found.";
 
   const system_prompt = `
-You are a helpful AI assistant that formats answers for a university assistant.
+    You are a precise and expert Markdown formatter.
 
-Given a raw answer string, restructure and rewrite it into clean, readable, well-organized **Markdown**. Use appropriate headings, bullet points, table, anchor link and sections. Keep the original meaning and make it easy to read.
+    Given a raw, unstructured answer string, your job is to reformat it into clean, readable, and well-organized Markdown. You must not add or invent any content—preserve every word from the input. Just reorganize and format what’s provided.
 
-You are given a noisy, sometimes redundant or cluttered answer. Your job is to:
-- Extract only the **relevant information**
-- Clean up and remove repeated or irrelevant info
+    Your responsibilities:
 
-Always output **only Markdown-formatted content** with no extra commentary.
-`;
+    - Use appropriate Markdown elements: headings, bullet points, numbered lists, tables, code blocks, quotes, and links.
+    - Remove redundant phrases and irrelevant clutter only if repeated or meaningless, but do not paraphrase or interpret.
+    - Do not expand or summarize. Do not include extra explanations or assumptions.
+    - Output only Markdown-formatted content, with no extra commentary or notes.
+
+    Forbidden Actions:
+
+    - Do not paraphrase, summarize, or interpret the content
+    - Do not introduce transitions like “In summary” or “To begin with”
+    - Do not change any meaning or add clarification
+
+    Important rules:
+
+    - Keep all original information intact unless it is repeated or purely noise.
+    - Never invent or add new words, transitions, or filler text.
+    - Always prioritize structure and clarity using Markdown syntax only.
+  `;
 
   const response = await model.invoke([
     { role: "system", content: system_prompt },
@@ -29,6 +42,8 @@ Always output **only Markdown-formatted content** with no extra commentary.
     typeof response.content === "string"
       ? response.content.trim()
       : raw_answer;
+
+  console.log("Formatted Answer:", formatted_answer);
 
   return {
     ...state,

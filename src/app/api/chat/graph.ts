@@ -6,6 +6,7 @@ import { router } from "./nodes/router";
 import { llmNode } from "./nodes/basic";
 import { assembleNode } from "./nodes/assemble";
 import { ragNode } from "./nodes/rag";
+import { ragGeneratorNode } from "./nodes/rag-generator";
 
 export function buildGraph() {
   const graph = new StateGraph(GraphState)
@@ -13,6 +14,7 @@ export function buildGraph() {
     .addNode("classifier", classifierNode)
     .addNode("llm", llmNode)
     .addNode("rag", ragNode)
+    .addNode("ragGenerator", ragGeneratorNode)
     .addNode("assemble", assembleNode)
     .addEdge("__start__", "normalizer")
     .addEdge("normalizer", "classifier")
@@ -20,8 +22,9 @@ export function buildGraph() {
       "llmNode": "llm", 
       "ragNode": "rag",
     })
+    .addEdge("rag", "ragGenerator")
     .addEdge("llm", "assemble")
-    .addEdge("rag", "assemble")
+    .addEdge("ragGenerator", "assemble")
     .addEdge("assemble", "__end__");
     
   return graph.compile();

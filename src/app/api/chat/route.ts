@@ -38,33 +38,41 @@ export async function POST(req: NextRequest): Promise<Response> {
     // const rawGraph = await graph.getGraphAsync({ xray: false });
     // await saveGraphImage(rawGraph);
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const resultStream = await graph.stream({ user_query: body.input });
+    // const stream = new ReadableStream({
+    //   async start(controller) {
+    //     const resultStream = await graph.stream({ user_query: body.input });
 
-        for await (const step of resultStream) {
-          const node = Object.values(step).find(
-            (v: { final_answer?: string; rag_answer?: string }) =>
-              v?.final_answer || v?.rag_answer
-          );
+    //     for await (const step of resultStream) {
+    //       const node = Object.values(step).find(
+    //         (v: { final_answer?: string; rag_answer?: string }) =>
+    //           v?.final_answer || v?.rag_answer
+    //       );
 
-          const content =
-            node?.final_answer || node?.rag_answer || "";
+    //       const content =
+    //         node?.final_answer || node?.rag_answer || "";
 
-          if (content) {
-            controller.enqueue(new TextEncoder().encode(content));
-          }
-        }
+    //       if (content) {
+    //         controller.enqueue(new TextEncoder().encode(content));
+    //       }
+    //     }
 
-        controller.close();
-      },
+    //     controller.close();
+    //   },
+    // });
+
+    const result = await graph.invoke({ user_query: body.input });
+    const answer = result.final_answer || result.rag_answer || "";
+
+
+    // return new Response(stream, {
+    //   headers: {
+    //     "Content-Type": "text/plain; charset=utf-8",
+    //   },
+    // });
+    return new Response(JSON.stringify({ answer }), {
+      headers: { "Content-Type": "application/json" },
     });
 
-    return new Response(stream, {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-      },
-    });
   } catch (error) {
     console.error("AI Chat Error:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {

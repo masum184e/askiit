@@ -1,0 +1,139 @@
+.markdown {
+    color: #1e293b;
+    font-family: system-ui, sans-serif;
+    line-height: 1.75;
+    word-break: break-word;
+    padding: 1px 15px;
+}
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  color: #1e293b;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown h1 {
+  font-size: 2.25rem;
+}
+.markdown h2 {
+  font-size: 1.875rem;
+}
+.markdown h3 {
+  font-size: 1.5rem;
+}
+.markdown h4 {
+  font-size: 1.25rem;
+}
+.markdown h5 {
+  font-size: 1.125rem;
+}
+.markdown h6 {
+  font-size: 1rem;
+}
+
+.markdown p {
+  margin: 1em 0;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.markdown ul,
+.markdown ol {
+  padding-left: 1.5em;
+  margin: 1em 0;
+  color: #1e293b;
+}
+
+.markdown li {
+  margin-bottom: 0.5em;
+}
+
+.markdown strong {
+  font-weight: bold;
+  color: #1e293b;
+}
+
+.markdown em {
+  font-style: italic;
+  color: #1e293b;
+}
+
+.markdown a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.markdown a:hover {
+  color: #1d4ed8;
+}
+
+.markdown blockquote {
+  border-left: 4px solid #94a3b8;
+  padding-left: 1em;
+  color: #475569;
+  font-style: italic;
+  background-color: #f8fafc;
+  margin: 1.5em 0;
+}
+
+.markdown code {
+  background-color: #f1f5f9;
+  color: #dc2626;
+  font-family: Menlo, monospace;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 0.95em;
+}
+
+.markdown pre {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  padding: 1em;
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  margin: 1.5em 0;
+}
+
+.markdown pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: 0.95em;
+}
+
+.markdown hr {
+  border: none;
+  border-top: 1px solid #cbd5e1;
+  margin: 2em 0;
+}
+
+.markdown img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 1em 0;
+}
+
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.95rem;
+}
+
+.markdown th,
+.markdown td {
+  border: 1px solid #cbd5e1;
+  padding: 0.75em 1em;
+}
+
+.markdown th {
+  background-color: #f8fafc;
+  text-align: left;
+}

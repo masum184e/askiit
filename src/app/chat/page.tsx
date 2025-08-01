@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import styles from "./markdown.module.css";
 
 const Page = () => {
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
@@ -25,29 +26,39 @@ const Page = () => {
         body: JSON.stringify({ input }),
       });
 
-      if (!res.body) throw new Error("ReadableStream not supported");
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let done = false;
-      let aiResponse = "";
-
-      // Append AI message placeholder
-      setChat((prev) => [...prev, { role: "ai" as const, content: "" }]);
-
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        if (value) {
-          aiResponse += decoder.decode(value);
-          setChat((prev) => {
-            // Replace last AI message content with updated text
-            const newChat = [...prev];
-            newChat[newChat.length - 1] = { role: "ai", content: aiResponse };
-            return newChat;
-          });
-        }
+      if (!res.ok) {
+        throw new Error(`Request failed with status ${res.status}`);
       }
+
+      const data = await res.json();
+      const aiResponse = data.answer ?? "No answer received";
+      console.log("AI Response:", aiResponse);
+
+      setChat((prev) => [...prev, { role: "ai", content: aiResponse }]);
+
+      // if (!res.body) throw new Error("ReadableStream not supported");
+
+      // const reader = res.body.getReader();
+      // const decoder = new TextDecoder();
+      // let done = false;
+      // let aiResponse = "";
+
+      // // Append AI message placeholder
+      // setChat((prev) => [...prev, { role: "ai" as const, content: "" }]);
+
+      // while (!done) {
+      //   const { value, done: doneReading } = await reader.read();
+      //   done = doneReading;
+      //   if (value) {
+      //     aiResponse += decoder.decode(value);
+      //     setChat((prev) => {
+      //       // Replace last AI message content with updated text
+      //       const newChat = [...prev];
+      //       newChat[newChat.length - 1] = { role: "ai", content: aiResponse };
+      //       return newChat;
+      //     });
+      //   }
+      // }
     } catch (error: unknown) {
       console.error(error);
       setChat((prev) => [
@@ -204,15 +215,17 @@ const Page = () => {
               {chat.map((msg, i) => (
                 <div
                   key={i}
-                  className={`text-justify p-3 rounded-xl max-w-[80%] ${
+                  className={`text-justify rounded-xl max-w-[80%] ${
                     msg.role === "user"
                       ? "bg-blue-100 self-end ml-auto"
-                      : "bg-gray-200 self-start mr-auto px-4"
+                      : "bg-gray-200 self-start mr-auto"
                   }`}
                 >
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.content}
-                  </ReactMarkdown>
+                  <article className={styles.markdown}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </article>
                 </div>
               ))}
               {/* {loading && (

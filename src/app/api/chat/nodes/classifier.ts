@@ -5,16 +5,49 @@ export async function classifierNode(
   state: Partial<GraphStateType>
 ): Promise<Partial<GraphStateType>> {
   const input = state.normalized_query!;
-  
+
   const system_prompt = `
-You are a query classifier for a university assistant.
+    You are a strict query classifier.
 
-Classify the following query into one of two categories:
-- "ragNode": if the query is related to faculty members, departments, teachers, or academic structure.
-- "llmNode": for general or creative questions (e.g., explanations, programming help, brainstorming).
+    Your task is to classify the user query into one of the following two categories:
 
-Respond with only one word: either "ragNode" or "llmNode". Do not explain.
-`;
+    - "ragNode" — for queries specifically related to:
+
+      - Faculty members or teachers
+      - Departments or academic structure
+      - Course syllabus or curriculum
+      - University clubs (e.g., IT Club)
+      - Academic syllabus or course materials
+      - Any other information that can be found in the department's knowledge base
+
+    - "llmNode" — for all other queries, including:
+
+      - Programming questions
+      - Concept explanations
+      - Brainstorming, writing, or creative help
+
+    - Rules:
+
+      - Respond with only one word: either ragNode or llmNode
+      - Do not explain, comment, or include punctuation
+
+    Example:
+
+    - Query: "List of CSE department faculty"
+    → ragNode
+
+    - Query: "Explain quicksort algorithm"
+    → llmNode
+
+    - Query: "What is the syllabus for DBMS?"
+    → ragNode
+
+    - Query: "Help me come up with a project idea"
+    → llmNode
+
+    - Query: "Who is the advisor of IT Club?"
+    → ragNode
+  `;
 
   const response = await model.invoke([
     { role: "system", content: system_prompt },
@@ -31,7 +64,7 @@ Respond with only one word: either "ragNode" or "llmNode". Do not explain.
     ? (raw_intent as GraphStateType["intent"])
     : "llmNode";
 
-  console.log(`Classifier Executed: ${intent}`);
+  console.log(`Classifier Node Executed: ${intent}`);
 
   return {
     ...state,
