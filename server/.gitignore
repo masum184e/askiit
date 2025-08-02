@@ -40,6 +40,8 @@ coverage.xml
 *.py,cover
 .hypothesis/
 
+.pdf
+
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
 
