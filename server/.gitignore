@@ -40,7 +40,8 @@ coverage.xml
 *.py,cover
 .hypothesis/
 
-.pdf
+app/services/chat/static/pdfs/
+app/services/chat/vectorstore/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
