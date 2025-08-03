@@ -30,7 +30,7 @@ export default function ProjectShowcase() {
   return (
     <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
       <div className="lg:order-2 animate-fade-in-right">
-        <Card className="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300">
+        <Card className="bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-200">
           <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-6">
             <Rocket className="text-white w-10 h-10" />
           </div>

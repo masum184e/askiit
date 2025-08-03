@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function AIAssistant() {
   return (
     <section className="animate-fade-in-up">
-      <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl text-white p-8 lg:p-12 border-0 shadow-xl">
+      <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl text-white p-8 lg:p-12 border border-slate-200 shadow-xl">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
 
           {/* Left Column */}

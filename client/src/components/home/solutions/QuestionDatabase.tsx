@@ -27,7 +27,7 @@ const QuestionDatabase = () => {
   return (
     <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
       <div className="animate-fade-in-left">
-        <Card className="p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300">
+        <Card className="p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-200">
           <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6">
             <BookOpen className="text-white w-10 h-10" />
           </div>
