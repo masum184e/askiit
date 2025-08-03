@@ -15,7 +15,7 @@ import Logo from "./Logo";
 const navigationItems = [
   { icon: MessageCircle, label: "Chat", view: "/chat" },
   { icon: Code, label: "SPL", view: "/spls" },
-  { icon: Users, label: "Students", view: "/batches" },
+  { icon: Users, label: "Students", view: "/students" },
   { icon: HelpCircle, label: "Question", view: "/questions" },
   { icon: Trophy, label: "Achievement", view: "/achievements" },
 ];
