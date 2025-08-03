@@ -32,7 +32,7 @@ const Navbar = () => {
           {/* Navigation Links */}
           <div className="hidden md:flex space-x-8 items-center">
             <a
-              href="#stats"
+              href="#features"
               className="relative text-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-semibold
              after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-blue-600
              after:transition-all after:duration-300 hover:after:w-full"
@@ -40,7 +40,7 @@ const Navbar = () => {
               Features
             </a>
             <a
-              href="#problems"
+              href="/about"
               className="relative text-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-semibold
              after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-blue-600
              after:transition-all after:duration-300 hover:after:w-full"
@@ -48,7 +48,7 @@ const Navbar = () => {
               About
             </a>
             <a
-              href="#cta"
+              href="/contact"
               className="relative text-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-semibold
              after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-blue-600
              after:transition-all after:duration-300 hover:after:w-full"
