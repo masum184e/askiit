@@ -36,7 +36,7 @@ export default function AIAssistant() {
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
             <CardContent className="bg-white/20 rounded-xl p-4 mb-4 text-white">
               <div className="text-sm text-indigo-200 mb-2">You:</div>
-              &#34;Show me Data Structures question papers from 2022&#34;
+              Show me Data Structures question papers from 2022
             </CardContent>
             <CardContent className="bg-indigo-600/50 rounded-xl p-4 text-white">
               <div className="text-sm text-indigo-200 mb-2">AI Assistant:</div>
