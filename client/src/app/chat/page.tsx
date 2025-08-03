@@ -220,7 +220,7 @@ const Page = () => {
             </div>
           )}
           {chat.length !== 0 && (
-            <div className="p-4 h-[calc(100vh-96px)] overflow-y-auto space-y-3 scrollable-hidden">
+            <div className="pt-[95px] p-4 h-[calc(100vh-100px)] overflow-y-auto space-y-3 scrollable-hidden">
               {chat.map((msg, i) => (
                 <article
                   key={i}
