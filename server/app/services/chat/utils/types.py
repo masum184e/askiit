@@ -4,7 +4,7 @@ from langgraph.graph.message import add_messages
 from langchain_core.messages import BaseMessage
 
 # Custom intent type
-Intent = Literal["qa", "rag"]
+Intent = Literal["qa", "rag", "db"]
 
 class GraphState(TypedDict, total=False):
     # Full message history (used for LLM context)

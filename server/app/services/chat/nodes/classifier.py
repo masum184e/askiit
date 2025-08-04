@@ -7,7 +7,7 @@ def classifier_node(state: GraphState) -> GraphState:
     system_prompt = """
 You are a strict query classifier.
 
-Your task is to classify the user query into one of the following two categories:
+Your task is to classify the user query into one of the following three categories:
 
 - "rag" — for queries specifically related to:
   - Faculty members or teachers
@@ -17,22 +17,30 @@ Your task is to classify the user query into one of the following two categories
   - Academic syllabus or course materials
   - Any other information that can be found in the department's knowledge base
 
+- "db" — for queries specifically related to:
+  - Database details or structures
+  - Database queries, schema, or administration
+  - Database troubleshooting or configurations
+  - Any question that concerns databases or data management
+
 - "qa" — for all other queries, including:
-  - Programming questions
+  - Programming questions (not related to DB)
   - Concept explanations
   - Brainstorming, writing, or creative help
 
 Rules:
-- Respond with only one word: either rag or qa
+- Respond with only one word: either rag, db, or qa
 - Do not explain, comment, or include punctuation
 
 Example:
 - Query: "List of CSE department faculty" → rag
 - Query: "Explain quicksort algorithm" → qa
 - Query: "What is the syllabus for DBMS?" → rag
+- Query: "Find me projects done by batch 2020 - 2021?" → db
 - Query: "Help me come up with a project idea" → qa
 - Query: "Who is the advisor of IT Club?" → rag
 """
+
 
     # Call the model with system prompt + user query
     response = model.invoke([
