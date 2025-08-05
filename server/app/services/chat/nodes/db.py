@@ -6,7 +6,6 @@ from app.services.chat.utils.types import GraphState
 from decouple import config
 
 db_uri = config("DB_URI_SYNC")
-print(db_uri)
 db = SQLDatabase.from_uri(db_uri)
 
 toolkit = SQLDatabaseToolkit(db=db, llm=model)
