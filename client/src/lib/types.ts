@@ -59,3 +59,29 @@ export interface StudentListResponse {
     students: StudentResponse[];
   };
 }
+
+export interface SPL {
+  spl_id: number;
+  name: string;
+  github: string | null;
+  live: string | null;
+  mentor: string | null;
+  overview: string | null;
+  banner: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SPLResponse extends SPL {
+  _links: ItemLinks;
+}
+
+export interface SPLListResponse {
+  _links: PaginationLinks;
+  page: number;
+  size: number;
+  total: number;
+  _embedded: {
+    spl: SPLResponse[];
+  };
+}
