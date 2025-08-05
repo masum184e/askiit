@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routers import chat
 from app.routers import achievement
 from app.routers import student
+from app.routers import spl
 
 app = FastAPI(title="AskIIT API")
 
@@ -13,6 +14,7 @@ app = FastAPI(title="AskIIT API")
 app.include_router(chat.router, prefix="/api", tags=["Chat"])
 app.include_router(achievement.router, prefix="/api", tags=["Achievements"])
 app.include_router(student.router, prefix="/api", tags=["Students"])
+app.include_router(spl.router, prefix="/api", tags=["SPL"])
 
 # CORS configuration - adjust origins as needed
 app.add_middleware(
