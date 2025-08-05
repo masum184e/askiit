@@ -93,6 +93,15 @@ const Page = () => {
 
   return (
     <div className="mt-[95px] px-4 py-2 h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollable-hidden">
+      {/* Search Input */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search competitions..."
+          value=""
+          className="border border-gray-300 rounded px-3 py-2 w-full max-w-md"
+        />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {courses.map((course, index) => (
           <CourseCard key={index} name={course.name} code={course.code} />

@@ -1,13 +1,14 @@
 import Link from "next/link";
 
-interface BatchCardProps {
+export const BatchCard = ({
+  batchName,
+  session,
+}: {
   batchName: string;
   session: string;
-}
-
-export const BatchCard = ({ batchName, session }: BatchCardProps) => {
+}) => {
   return (
-    <Link href={`/students/${batchName}`}>
+    <Link href={`/students?session=${session}`}>
       <div className="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-200 group hover:-translate-y-1 hover:scale-105 transition-all duration-300 ease-in-out relative overflow-hidden">
         <div className="space-y-3">
           <h3 className="text-xl font-semibold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">
