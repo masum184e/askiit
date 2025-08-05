@@ -11,10 +11,17 @@ const Page = () => {
   const [chat, setChat] = useState<{ role: "user" | "ai"; content: string }[]>(
     []
   );
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const handleSuggestionClick = async (text: string) => {
+    setInput(text);
+    await handleSend(text);
+  };
 
-    const userMessage = { role: "user" as const, content: input };
+  const handleSend = async (message?: string) => {
+    const contentToSend = message ?? input;
+    if (!contentToSend.trim()) return;
+
+    console.log(`Sending: "${contentToSend}"`);
+    const userMessage = { role: "user" as const, content: contentToSend };
     setChat((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
@@ -23,43 +30,15 @@ const Page = () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify({ input: contentToSend }),
       });
 
-      if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
-      }
-
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
       const data = await res.json();
       const aiResponse = data.answer ?? "No answer received";
-      console.log("AI Response:", aiResponse);
 
       setChat((prev) => [...prev, { role: "ai", content: aiResponse }]);
-
-      // if (!res.body) throw new Error("ReadableStream not supported");
-
-      // const reader = res.body.getReader();
-      // const decoder = new TextDecoder();
-      // let done = false;
-      // let aiResponse = "";
-
-      // // Append AI message placeholder
-      // setChat((prev) => [...prev, { role: "ai" as const, content: "" }]);
-
-      // while (!done) {
-      //   const { value, done: doneReading } = await reader.read();
-      //   done = doneReading;
-      //   if (value) {
-      //     aiResponse += decoder.decode(value);
-      //     setChat((prev) => {
-      //       // Replace last AI message content with updated text
-      //       const newChat = [...prev];
-      //       newChat[newChat.length - 1] = { role: "ai", content: aiResponse };
-      //       return newChat;
-      //     });
-      //   }
-      // }
-    } catch (error: unknown) {
+    } catch (error) {
       console.error(error);
       setChat((prev) => [
         ...prev,
@@ -82,7 +61,90 @@ const Page = () => {
 
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat, loading]);
+  }, [chat]);
+
+  const suggestions = [
+    {
+      title: "Find Question Papers",
+      subtitle: "Show me Data Structures papers from 2022-2023",
+      color: "blue",
+      icon: (
+        <svg
+          className="w-4 h-4 text-blue-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+          ></path>
+        </svg>
+      ),
+    },
+    {
+      title: "Browse Student Projects",
+      subtitle: "Find web development projects by Batch 2022",
+      color: "green",
+      icon: (
+        <svg
+          className="w-4 h-4 text-green-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+          ></path>
+        </svg>
+      ),
+    },
+    {
+      title: "Connect with Students",
+      subtitle: "Help me find alumni working in software companies",
+      color: "purple",
+      icon: (
+        <svg
+          className="w-5 h-5 text-purple-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0zm6 13v-2a4 4 0 00-3-3.87M4 20v-2a4 4 0 013-3.87"
+          />
+        </svg>
+      ),
+    },
+    {
+      title: "Get Academic Help",
+      subtitle: "Explain database normalization with examples",
+      color: "orange",
+      icon: (
+        <svg
+          className="w-4 h-4 text-orange-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+          ></path>
+        </svg>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -105,117 +167,30 @@ const Page = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-                <button className="example-prompt p-4 text-left border border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-200">
-                      <svg
-                        className="w-4 h-4 text-blue-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                {suggestions.map((item, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className="example-prompt p-4 text-left border border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group"
+                    onClick={() => handleSuggestionClick(item.subtitle)}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div
+                        className={`w-8 h-8 bg-${item.color}-100 rounded-lg flex items-center justify-center group-hover:bg-${item.color}-200 transition-colors duration-200`}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                        ></path>
-                      </svg>
+                        {item.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-700">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {item.subtitle}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-medium text-gray-700">
-                        Find Question Papers
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Show me Data Structures papers from 2022-2023
-                      </p>
-                    </div>
-                  </div>
-                </button>
-
-                <button className="example-prompt p-4 text-left border border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors duration-200">
-                      <svg
-                        className="w-4 h-4 text-green-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                        ></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-700">
-                        Browse Student Projects
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Find web development projects by Batch 2022
-                      </p>
-                    </div>
-                  </div>
-                </button>
-
-                <button className="example-prompt p-4 text-left border border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors duration-200">
-                      <svg
-                        className="w-5 h-5 text-purple-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0zm6 13v-2a4 4 0 00-3-3.87M4 20v-2a4 4 0 013-3.87"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-700">
-                        Connect with Students
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Help me find alumni working in software companies
-                      </p>
-                    </div>
-                  </div>
-                </button>
-
-                <button className="example-prompt p-4 text-left border border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 group">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors duration-200">
-                      <svg
-                        className="w-4 h-4 text-orange-600"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                        ></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-700">
-                        Get Academic Help
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Explain database normalization with examples
-                      </p>
-                    </div>
-                  </div>
-                </button>
+                  </button>
+                ))}
               </div>
             </div>
           )}
@@ -237,7 +212,7 @@ const Page = () => {
                   </ReactMarkdown>
                 </article>
               ))}
-              
+
               {loading && (
                 <div className="flex items-center space-x-2 mt-2 ml-2">
                   <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce"></div>
@@ -264,7 +239,7 @@ const Page = () => {
               rows={1}
             />
             <button
-              onClick={handleSend}
+              onClick={async() => await handleSend(input)}
               disabled={loading || !input.trim()}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-600 rounded-lg transition-all duration-200"
             >
