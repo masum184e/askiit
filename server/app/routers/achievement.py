@@ -1,20 +1,31 @@
-from fastapi import FastAPI, Depends, HTTPException, APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from sqlalchemy.exc import SQLAlchemyError, DBAPIError
+from sqlalchemy.orm import selectinload 
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import or_
+
 from app.database import get_db
 from app.models.achievement import Achievement
+from app.utils.helper import error_response
 
 router = APIRouter(tags=["Achievements"])
 
-
 def achievement_to_hateoas(a: Achievement):
+
     return {
         "achievement_id": a.achievement_id,
         "competition_name": a.competition_name,
         "position": a.position,
-        "overview": a.overview,
+        "description": a.description,
+        "students": [
+            {
+                "id": student.student_id,
+                "image": student.image,
+            }
+            for student in a.students if student.student_id
+        ],
         "created_at": str(a.created_at),
         "updated_at": str(a.updated_at),
         "_links": {
@@ -23,30 +34,23 @@ def achievement_to_hateoas(a: Achievement):
         },
     }
 
-
-def error_response(error_type: str, message: str, hint: str, status_code: int):
-    return JSONResponse(status_code=status_code, content={
-        "error": {
-            "type": error_type,
-            "message": message,
-            "hint": hint,
-            "status_code": status_code
-        }
-    })
-
-
 @router.get("/achievements", response_class=JSONResponse)
 async def list_achievements(
     db: AsyncSession = Depends(get_db),
     page: int = Query(1, ge=1),
-    size: int = Query(9, ge=1, le=9),
+    size: int = Query(9, ge=1, le=50),
     search: str | None = Query(None),
 ):
     try:
-        query = select(Achievement).where(Achievement.deleted_at.is_(None))
+        query = select(Achievement).options(selectinload(Achievement.students)).where(Achievement.deleted_at.is_(None))
 
         if search:
-            query = query.where(Achievement.competition_name.ilike(f"%{search}%"))
+            query = query.where(
+                or_(
+                    func.lower(Achievement.competition_name).ilike(f"%{search.strip().lower()}%"),
+                    func.lower(Achievement.description).ilike(f"%{search.strip().lower()}%")
+                )
+            )
 
         # Total count
         count_result = await db.execute(select(func.count()).select_from(query.subquery()))
@@ -75,11 +79,14 @@ async def list_achievements(
                 "prev": {"href": build_page_link(page - 1)} if page > 1 else None,
                 "next": {"href": build_page_link(page + 1)} if page < last_page else None,
             },
+            "filters": {
+                "search": search,
+            },
             "page": page,
             "size": size,
             "total": total,
             "_embedded": {
-                "achievements": data
+                "data": data
             }
         })
 
@@ -103,7 +110,7 @@ async def list_achievements(
 async def get_achievement(achievement_id: int, db: AsyncSession = Depends(get_db)):
     try:
         result = await db.execute(
-            select(Achievement).where(Achievement.achievement_id == achievement_id)
+            select(Achievement).options(selectinload(Achievement.students)).where(Achievement.achievement_id == achievement_id)
         )
         achievement = result.scalar_one_or_none()
 
