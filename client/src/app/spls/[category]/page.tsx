@@ -5,10 +5,12 @@ import { ArrowLeft } from "lucide-react";
 import ProjectCard from "@/components/ProjectCard";
 import Loading from "@/components/Loading";
 import { SPLResponse, SPLListResponse } from "@/lib/types";
+import { use } from "react";
 
 const PAGE_SIZE = 6;
 
-const Page = () => {
+const Page = ({ params }: { params: Promise<{ category: string }> }) => {
+  const { category } = use(params);
   const [splList, setSplList] = useState<SPLResponse[]>([]);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -21,7 +23,7 @@ const Page = () => {
       setLoading(true);
       setError(null);
 
-  const query = new URLSearchParams();
+      const query = new URLSearchParams();
       query.append("page", page.toString());
       query.append("size", PAGE_SIZE.toString());
       if (search) {
@@ -29,14 +31,17 @@ const Page = () => {
       }
 
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/spl?${query.toString()}`
+        `${
+          process.env.NEXT_PUBLIC_API_URL
+        }/spls?category=${category}&${query.toString()}`
       );
 
       if (!res.ok) throw new Error("Failed to fetch SPLs");
 
       const data: SPLListResponse = await res.json();
-      setSplList(data._embedded?.spl ?? []);
-      setTotal(data.total);
+      console.log(data)
+      setSplList(data._embedded?.data ?? []);
+      setTotal(data.total ?? 0);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
