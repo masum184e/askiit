@@ -27,7 +27,7 @@ const StudentContainer = ({ page, search = "", session, setPage }: {
         page: page.toString(), // ✅ use actual page
       });
       if (search) query.append("search", search);
-      if (session) query.append("session_filter", session); // ✅ correct param name
+      if (session) query.append("session", session); // ✅ correct param name
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/students?${query.toString()}`
@@ -38,7 +38,7 @@ const StudentContainer = ({ page, search = "", session, setPage }: {
       }
 
       const data: StudentListResponse = await response.json();
-      setStudents(data._embedded?.students || []);
+      setStudents(data._embedded?.data || []);
       setTotal(data.total || 0);
     } catch (error: unknown) {
       setError(
