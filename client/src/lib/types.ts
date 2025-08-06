@@ -2,9 +2,11 @@ export interface Achievement {
   achievement_id: number;
   competition_name: string;
   position: string;
-  overview: string;
-  session: string;
-  image: string;
+  description: string;
+  students: {
+    id: string;
+    image: string | null;
+  }[];
   created_at: string;
   updated_at: string;
 }
@@ -32,7 +34,7 @@ export interface AchievementListResponse {
   size: number;
   total: number;
   _embedded: {
-    achievements: AchievementResponse[];
+    data: AchievementResponse[];
   };
 }
 
@@ -56,18 +58,23 @@ export interface StudentListResponse {
   size: number;
   total: number;
   _embedded: {
-    students: StudentResponse[];
+    data: StudentResponse[];
   };
 }
 
 export interface SPL {
   spl_id: number;
   name: string;
-  github: string | null;
-  live: string | null;
-  mentor: string | null;
-  overview: string | null;
+  github: string;
+  live: string;
+  mentor: string;
+  categories: string;
+  description: string;
   banner: string | null;
+  students: {
+    id: string;
+    image: string | null;
+  }[];
   created_at: string;
   updated_at: string;
 }
@@ -82,6 +89,6 @@ export interface SPLListResponse {
   size: number;
   total: number;
   _embedded: {
-    spl: SPLResponse[];
+    data: SPLResponse[];
   };
 }
