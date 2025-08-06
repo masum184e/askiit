@@ -32,7 +32,7 @@ const Page = () => {
         throw new Error("Failed to fetch achievements");
       }
       const data: AchievementListResponse = await response.json();
-      setAchievements(data._embedded?.achievements || []);
+      setAchievements(data._embedded?.data || []);
       setTotal(data.total || 0);
     } catch (error: unknown) {
       if (error instanceof Error) {
