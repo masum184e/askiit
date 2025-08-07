@@ -7,10 +7,13 @@ import {
   Trophy,
   Menu,
   X,
+  UserCircle,
+  Settings
 } from "lucide-react";
 import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Logo from "./Logo";
+import Link from "next/link";
 
 const navigationItems = [
   { icon: MessageCircle, label: "Chat", view: "/chat" },
@@ -18,11 +21,12 @@ const navigationItems = [
   { icon: Users, label: "Students", view: "/students" },
   { icon: HelpCircle, label: "Question", view: "/questions" },
   { icon: Trophy, label: "Achievement", view: "/achievements" },
+  { icon: UserCircle, label: "Profile", view: "/profile" },
+  { icon: Settings, label: "Settings", view: "/settings" },
 ];
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
 
   return (
@@ -60,12 +64,13 @@ export const Sidebar = () => {
           {navigationItems.map((item) => {
             const isActive = pathname.startsWith(item.view);
             return (
-              <button
+              <Link
                 key={item.label}
-                onClick={() => {
-                  router.push(item.view);
-                  setIsOpen(false);
-                }}
+                // onClick={() => {
+                //   router.push(item.view);
+                //   setIsOpen(false);
+                // }}
+                href={item.view}
                 className={`w-full cursor-pointer flex items-center gap-3 px-4 py-3 text-slate-700 rounded-lg hover:bg-slate-100 transition-all duration-200 group ${
                   isActive
                     ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white"
@@ -74,7 +79,7 @@ export const Sidebar = () => {
               >
                 <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
                 <span className="font-medium">{item.label}</span>
-              </button>
+              </Link>
             );
           })}
         </nav>
