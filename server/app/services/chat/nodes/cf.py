@@ -9,7 +9,7 @@ def cf_node(state: GraphState) -> GraphState:
     handle = query.strip()
 
     url = f"https://codeforces.com/api/user.info?handles={handle}"
-    print("CF Node Executed:", output)
+    print(f"CF Node Executed: {handle}")
 
     try:
         response = requests.get(url, timeout=5)
