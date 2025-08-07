@@ -93,19 +93,19 @@ const Page = () => {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage(page - 1)}
-                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                className="px-4 py-1 text-gray-800 rounded disabled:opacity-50"
               >
                 Previous
               </button>
 
-              <span>
+              <span className="text-gray-800">
                 Page {page} of {totalPages || 1}
               </span>
 
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage(page + 1)}
-                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+                className="px-4 py-1 text-gray-800 rounded disabled:opacity-50"
               >
                 Next
               </button>
