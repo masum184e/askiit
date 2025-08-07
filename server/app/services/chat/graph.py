@@ -8,6 +8,9 @@ from app.services.chat.nodes.generate import generator_node
 from app.services.chat.nodes.assemble import assemble_node
 from app.services.chat.nodes.db import db_node
 from app.services.chat.nodes.cf import cf_node
+from app.services.chat.nodes.db_classifier import db_classifier
+from app.services.chat.utils.memory import checkpointer
+
 
 def build_graph():
     builder = StateGraph(GraphState)
@@ -17,6 +20,7 @@ def build_graph():
     builder.add_node("QANode", qa_node)
     builder.add_node("RAGNode", retrieval_node)
     builder.add_node("DBNode", db_node)
+    builder.add_node("DBClassifier", db_classifier)
     builder.add_node("CFNode", cf_node)
     builder.add_node("Generate", generator_node)
     builder.add_node("Assemble", assemble_node)
@@ -33,14 +37,21 @@ def build_graph():
             "cf": "CFNode",
         }
     )
+    builder.add_edge("DBNode", "DBClassifier")
+    builder.add_conditional_edges(
+        "DBClassifier",
+        lambda state: state.get("intent"),
+        {
+            "cf": "CFNode",
+            "other": "Assemble",
+        }
+    )
     builder.add_edge("RAGNode", "Generate")
     
     builder.add_edge("QANode", "Assemble")
-    builder.add_edge("DBNode", "Assemble")
     builder.add_edge("CFNode", "Assemble")
-    builder.add_edge("DBNode", "CFNode")
     builder.add_edge("CFNode", "Assemble")
     builder.add_edge("Generate", "Assemble")
     builder.add_edge("Assemble", END)
     
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer)

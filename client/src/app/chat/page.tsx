@@ -27,10 +27,19 @@ const Page = () => {
     setLoading(true);
 
     try {
+      let threadId = localStorage.getItem("threadId");
+      if (!threadId) {
+        threadId = crypto.randomUUID();
+        localStorage.setItem("threadId", threadId);
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: contentToSend }),
+        body: JSON.stringify({
+          input: contentToSend,
+          session_id: threadId,
+        }),
       });
 
       if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
@@ -239,7 +248,7 @@ const Page = () => {
               rows={1}
             />
             <button
-              onClick={async() => await handleSend(input)}
+              onClick={async () => await handleSend(input)}
               disabled={loading || !input.trim()}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-600 rounded-lg transition-all duration-200"
             >
