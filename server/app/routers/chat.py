@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from app.services.chat.utils.types import GraphState
 from app.services.chat.graph import build_graph
-from app.services.chat.utils.memory import get_config
+from app.services.chat.memory import get_config
 
 router = APIRouter(tags=["Chat"])
 
@@ -9,7 +9,7 @@ router = APIRouter(tags=["Chat"])
 async def ask(request: Request):
     data = await request.json()
     user_query = data.get("input")
-    thread_id = data.get("thread_id")
+    thread_id = data.get("session_id")
     print(f"Thread: {thread_id}")
 
     if not user_query:

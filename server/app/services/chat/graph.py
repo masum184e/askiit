@@ -9,7 +9,7 @@ from app.services.chat.nodes.assemble import assemble_node
 from app.services.chat.nodes.db import db_node
 from app.services.chat.nodes.cf import cf_node
 from app.services.chat.nodes.db_classifier import db_classifier
-from app.services.chat.utils.memory import checkpointer
+from app.services.chat.memory import checkpointer
 
 
 def build_graph():
