@@ -4,13 +4,44 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import styles from "./markdown.module.css";
 
+const STORAGE_KEY = "chatHistory";
+const THREAD_KEY = "threadId";
+const EXPIRY_KEY = "chatExpiry";
+const EXPIRY_TIME = 24 * 60 * 60 * 1000; // 24 hours in ms
+
 const Page = () => {
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
-  const [chat, setChat] = useState<{ role: "user" | "ai"; content: string }[]>(
-    []
-  );
+  const [chat, setChat] = useState<{ role: "user" | "ai"; content: string }[]>([]);
+
+  /** Load chat from localStorage if still valid */
+  useEffect(() => {
+    const expiry = localStorage.getItem(EXPIRY_KEY);
+    if (expiry && Date.now() - parseInt(expiry) > EXPIRY_TIME) {
+      // Expired — clear
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(THREAD_KEY);
+      localStorage.removeItem(EXPIRY_KEY);
+      return;
+    }
+
+    const storedChat = localStorage.getItem(STORAGE_KEY);
+    if (storedChat) {
+      setChat(JSON.parse(storedChat));
+    }
+  }, []);
+
+  /** Save chat to localStorage whenever it changes */
+  useEffect(() => {
+    if (chat.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(chat));
+      if (!localStorage.getItem(EXPIRY_KEY)) {
+        localStorage.setItem(EXPIRY_KEY, Date.now().toString());
+      }
+    }
+  }, [chat]);
+
   const handleSuggestionClick = async (text: string) => {
     setInput(text);
     await handleSend(text);
@@ -20,17 +51,16 @@ const Page = () => {
     const contentToSend = message ?? input;
     if (!contentToSend.trim()) return;
 
-    console.log(`Sending: "${contentToSend}"`);
     const userMessage = { role: "user" as const, content: contentToSend };
     setChat((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
 
     try {
-      let threadId = localStorage.getItem("threadId");
+      let threadId = localStorage.getItem(THREAD_KEY);
       if (!threadId) {
         threadId = crypto.randomUUID();
-        localStorage.setItem("threadId", threadId);
+        localStorage.setItem(THREAD_KEY, threadId);
       }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
@@ -73,108 +103,24 @@ const Page = () => {
   }, [chat]);
 
   const suggestions = [
-    {
-      title: "Find Question Papers",
-      subtitle: "Show me Data Structures papers from 2022-2023",
-      color: "blue",
-      icon: (
-        <svg
-          className="w-4 h-4 text-blue-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-          ></path>
-        </svg>
-      ),
-    },
-    {
-      title: "Browse Student Projects",
-      subtitle: "Find web development projects by Batch 2022",
-      color: "green",
-      icon: (
-        <svg
-          className="w-4 h-4 text-green-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-          ></path>
-        </svg>
-      ),
-    },
-    {
-      title: "Connect with Students",
-      subtitle: "Help me find alumni working in software companies",
-      color: "purple",
-      icon: (
-        <svg
-          className="w-5 h-5 text-purple-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0zm6 13v-2a4 4 0 00-3-3.87M4 20v-2a4 4 0 013-3.87"
-          />
-        </svg>
-      ),
-    },
-    {
-      title: "Get Academic Help",
-      subtitle: "Explain database normalization with examples",
-      color: "orange",
-      icon: (
-        <svg
-          className="w-4 h-4 text-orange-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-          ></path>
-        </svg>
-      ),
-    },
+    { title: "Find Question Papers", subtitle: "Show me Data Structures papers from 2022-2023", color: "blue", icon: (<svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>) },
+    { title: "Browse Student Projects", subtitle: "Find web development projects by Batch 2022", color: "green", icon: (<svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>) },
+    { title: "Connect with Students", subtitle: "Help me find alumni working in software companies", color: "purple", icon: (<svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 7a4 4 0 11-8 0 4 4 0 018 0zm6 13v-2a4 4 0 00-3-3.87M4 20v-2a4 4 0 013-3.87" /></svg>) },
+    { title: "Get Academic Help", subtitle: "Explain database normalization with examples", color: "orange", icon: (<svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>) },
   ];
 
   return (
     <>
       <div
-        className={`min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 px-4 ${
-          chat.length === 0 ? "flex flex-col items-center justify-center" : ""
-        } `}
+        className={`min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 px-4 ${chat.length === 0 ? "flex flex-col items-center justify-center" : ""}`}
       >
         <div className="max-w-4xl w-full mx-auto">
           {chat.length === 0 && (
             <div className="-mt-20 space-y-8 text-center">
               <div className="space-y-4">
-                <h1 className="text-4xl font-bold text-gray-700">
-                  How can I help you today?
-                </h1>
-                <p className="text-lg text-gray-600">
-                  Ask me anything, and I{"'"}ll do my best to help you learn and
-                  solve problems.
-                </p>
+                <h1 className="text-4xl font-bold text-gray-700">How can I help you today?</h1>
+                <p className="text-lg text-gray-600">Ask me anything, and I{"'"}ll do my best to help you learn and solve problems.</p>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
                 {suggestions.map((item, index) => (
                   <button
@@ -184,18 +130,12 @@ const Page = () => {
                     onClick={() => handleSuggestionClick(item.subtitle)}
                   >
                     <div className="flex items-start space-x-3">
-                      <div
-                        className={`w-8 h-8 bg-${item.color}-100 rounded-lg flex items-center justify-center group-hover:bg-${item.color}-200 transition-colors duration-200`}
-                      >
+                      <div className={`w-8 h-8 bg-${item.color}-100 rounded-lg flex items-center justify-center group-hover:bg-${item.color}-200 transition-colors duration-200`}>
                         {item.icon}
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-700">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {item.subtitle}
-                        </p>
+                        <h3 className="font-medium text-gray-700">{item.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{item.subtitle}</p>
                       </div>
                     </div>
                   </button>
@@ -208,12 +148,8 @@ const Page = () => {
               {chat.map((msg, i) => (
                 <article
                   key={i}
-                  className={`${
-                    styles.markdown
-                  } text-justify px-4 rounded-2xl shadow max-w-[75%] text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-indigo-100  self-end ml-auto"
-                      : "bg-gray-100 self-start mr-auto"
+                  className={`${styles.markdown} text-justify px-4 rounded-2xl shadow max-w-[75%] text-sm leading-relaxed ${
+                    msg.role === "user" ? "bg-indigo-100  self-end ml-auto" : "bg-gray-100 self-start mr-auto"
                   }`}
                 >
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -221,7 +157,6 @@ const Page = () => {
                   </ReactMarkdown>
                 </article>
               ))}
-
               {loading && (
                 <div className="flex items-center space-x-2 mt-2 ml-2">
                   <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce"></div>
@@ -229,7 +164,6 @@ const Page = () => {
                   <div className="w-2.5 h-2.5 bg-gray-400 rounded-full animate-bounce delay-300"></div>
                 </div>
               )}
-
               <div ref={endOfMessagesRef} />
             </div>
           )}
@@ -267,7 +201,6 @@ const Page = () => {
               </svg>
             </button>
           </div>
-
           <p className="text-xs text-gray-500 mt-2 text-center">
             AI can make mistakes. Consider checking important information.
           </p>
