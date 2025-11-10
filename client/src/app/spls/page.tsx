@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
 
 const spls = [
   {
     title: "SPL 1",
+    imgLink: "/images/spl-1.png",
     semester: "3rd Semester",
     description:
       "First step into software projects. Learn teamwork, Git, and SDLC basics.",
@@ -12,6 +14,7 @@ const spls = [
   },
   {
     title: "SPL 2",
+    imgLink: "/images/spl-2.png",
     semester: "5th Semester",
     description:
       "Intermediate project building with full-stack technologies and real-world apps.",
@@ -19,6 +22,7 @@ const spls = [
   },
   {
     title: "SPL 3",
+    imgLink: "/images/spl-3.png",
     semester: "8th Semester",
     description:
       "Capstone project showcasing complete software lifecycle & deployment.",
@@ -45,7 +49,13 @@ export default function Page() {
         {spls.map((spl, index) => (
           <Link key={index} href={spl.next}>
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl group hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer">
-              <div className="w-full h-48 bg-gray-300" />
+              <Image
+                src={spl.imgLink}
+                alt={spl.title}
+                width={1000}
+                height={600}
+                className="object-cover w-full h-48 border border-gray-300 border-b-0 rounded-t-2xl"
+              />
               <div className="p-4">
                 <h3 className="text-xl font-bold mb-1 text-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   {spl.title}
