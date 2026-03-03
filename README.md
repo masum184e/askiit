@@ -56,33 +56,52 @@ cd askiit
 ```
 
 ### 🔧 Setup Instructions
-
-#### 1. Environment Variables
+#### 1. Docker Configuration for Database
+```bash
+# /askiit
+# docker pull postgres:16
+# docker rm -f askiit-db
+docker run -d --name askiit-db -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_DB=askiit -p 5432:5432 -v askiit_pgdata:/var/lib/postgresql/data postgres:16
+docker ps
+docker exec -i askiit-db psql -U user -d askiit < ./server/database.sql
+docker exec -i askiit-db psql -U user -d askiit < ./server/data.sql
+```
+Verify Data:
+```bash
+docker exec -it askiit-db psql -U user -d askiit
+SELECT COUNT(*) FROM student;
+SELECT COUNT(*) FROM spl;
+SELECT COUNT(*) FROM achievement;
+SELECT COUNT(*) FROM paper;
+``` 
+#### 2. Environment Variables
 
 Create `.env` files using these samples:
 
 **Frontend (`client/.env`)**
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_GEMINI_API_KEY=your-gemini-api-key
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
 ```
 
 **Backend (`server/.env`)**
 
 ```env
 DATABASE_URL=postgresql://user:password@localhost:5432/askiit
+DB_URI_ASYNC=postgresql+asyncpg://user:password@localhost:5432/askiit
 SECRET_KEY=your-super-secret-key
 ALLOWED_HOSTS=*
-GEMINI_API_KEY=your-gemini-api-key
+GOOGLE_API_KEY=your-gemini-api-key
 ```
 
-#### 2. Local Development
+#### 3. Local Development
 
 **Start the backend:**
 
 ```bash
 cd server
+virtualenv venv
+.\venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
@@ -95,7 +114,7 @@ npm install
 npm run dev
 ```
 
-#### 3. Dockerized Deployment
+#### 4. Dockerized Deployment
 
 **With Docker Compose (recommended):**
 

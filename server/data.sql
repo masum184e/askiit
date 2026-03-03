@@ -134,7 +134,7 @@ INSERT INTO spl_member (spl_id, student_id) VALUES
 (15, 'ASH2018003F'),
 (16, 'ASH2019003I');
 
-INSERT INTO achievement (competition_name, position, overview, created_at, updated_at)
+INSERT INTO achievement (competition_name, position, description, created_at, updated_at)
 VALUES
 ('ACM ICPC Regional Contest', '1st Place', 'Won the regional ACM ICPC programming contest with outstanding problem-solving skills.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
@@ -201,12 +201,19 @@ INSERT INTO paper_member (paper_id, student_id) VALUES
 (5, 'ASH2019003I'),
 (5, 'ASH2018003F');
 
-INSERT INTO topic (name, created_at, updated_at) VALUES
-('Machine Learning', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Quantum Computing', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Blockchain', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Internet of Things', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Data Mining', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- INSERT INTO topic (name, created_at, updated_at) VALUES
+-- ('Machine Learning', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- ('Quantum Computing', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- ('Blockchain', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- ('Internet of Things', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- ('Data Mining', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO topic (topic_name)
+VALUES
+('Machine Learning'),
+('Quantum Computing'),
+('Blockchain'),
+('Internet of Things'),
+('Data Mining');
 
 -- Student ASH2017001A interested in Machine Learning and Data Mining
 INSERT INTO student_interest (student_id, topic_id) VALUES

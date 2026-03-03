@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
-from app.services.chat.utils.types import GraphState
-from app.services.chat.graph import build_graph
-from app.services.chat.memory import get_config
+# from app.services.chat.utils.types import GraphState
+# from app.services.chat.graph import build_graph
+# from app.services.chat.memory import get_config
 
 router = APIRouter(tags=["Chat"])
 
@@ -15,13 +15,13 @@ async def ask(request: Request):
     if not user_query:
         return {"error": "No messages provided"}
 
-    initial_state: GraphState = {
-        "user_query": user_query,
-        "trace": []
-    }
+    # initial_state: GraphState = {
+    #     "user_query": user_query,
+    #     "trace": []
+    # }
 
-    graph = build_graph()
-    new_state = await graph.ainvoke(initial_state, get_config(thread_id))
+    # graph = build_graph()
+    # new_state = await graph.ainvoke(initial_state, get_config(thread_id))
 
     # from IPython.display import Image, display
 
@@ -33,7 +33,8 @@ async def ask(request: Request):
     #     # This requires some extra dependencies and is optional
     #     pass
 
-    return {
-        "answer": new_state.get("final_response"),
-        "trace": new_state.get("trace", [])
-    }
+    # return {
+    #     "answer": new_state.get("final_response"),
+    #     "trace": new_state.get("trace", [])
+    # }
+    return {}
