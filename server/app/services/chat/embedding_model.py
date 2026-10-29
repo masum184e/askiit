@@ -5,7 +5,7 @@
 #     google_api_key=config("GOOGLE_API_KEY")
 # )
 
-from langchain_huggingface import HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEmbeddings
 
 embedding_model = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2",
