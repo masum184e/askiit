@@ -3,7 +3,7 @@ from textwrap import dedent
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from app.logger import get_logger
+from app.logger import get_logger, StepTimer
 from app.services.chat.llm_model import model
 from app.services.chat.utils.query import content_to_text, extract_query
 from app.services.chat.utils.types import GraphState
@@ -86,10 +86,11 @@ async def intent_classifier_node(state: GraphState) -> GraphState:
     else:
         log.debug("%s | query=%r", NODE_NAME, query)
         try:
-            response = await model.ainvoke([
-                SystemMessage(content=SYSTEM_PROMPT),
-                HumanMessage(content=query),
-            ])
+            with StepTimer(log, f"{NODE_NAME}.ainvoke"):
+                response = await model.ainvoke([
+                    SystemMessage(content=SYSTEM_PROMPT),
+                    HumanMessage(content=query),
+                ])
             raw = content_to_text(response.content).strip()
             intent = parse_intent(raw)
             log.debug("%s | query=%r raw=%r -> %s", NODE_NAME, query, raw, intent)

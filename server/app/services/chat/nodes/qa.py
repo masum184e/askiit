@@ -2,7 +2,7 @@ from textwrap import dedent
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from app.logger import get_logger
+from app.logger import get_logger, StepTimer
 from app.services.chat.llm_model import model
 from app.services.chat.utils.query import content_to_text, extract_query
 from app.services.chat.utils.types import GraphState
@@ -70,7 +70,8 @@ async def qa_node(state: GraphState) -> GraphState:
     else:
         log.debug("%s | query=%r", NODE_NAME, query)
         try:
-            response = await model.ainvoke(build_messages(state, query))
+            with StepTimer(log, f"{NODE_NAME}.ainvoke"):
+                response = await model.ainvoke(build_messages(state, query))
             answer = content_to_text(response.content).strip() or FALLBACK_MESSAGE
         except Exception:
             log.exception("%s | model call failed", NODE_NAME)
