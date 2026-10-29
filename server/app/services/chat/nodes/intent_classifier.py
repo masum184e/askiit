@@ -78,7 +78,7 @@ def parse_intent(text: str) -> str:
 
 
 async def intent_classifier_node(state: GraphState) -> GraphState:
-    query = extract_query(state, prefer_normalized=True)
+    query = extract_query(state)
     intent = DEFAULT_INTENT
 
     if not query:

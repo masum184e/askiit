@@ -56,7 +56,7 @@ def reset_agent() -> None:
 
 async def mcp_node(state: GraphState) -> GraphState:
     global _agent
-    query = extract_query(state, prefer_normalized=True)
+    query = extract_query(state)
     failed = False
 
     if not query:

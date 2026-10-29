@@ -1,13 +1,13 @@
 from app.logger import get_logger
 from app.services.chat.utils.types import GraphState
-from app.services.chat.utils.query import extract_query
+from app.services.chat.utils.query import extract_raw_query
 
 log = get_logger(__name__)
 
 NODE_NAME = "normalizer"
 
 def normalizer_node(state: GraphState) -> GraphState:
-    raw = extract_query(state, prefer_normalized=True)
+    raw = extract_raw_query(state)
     normalized = raw.lower().strip()
     
     log.debug("%s | raw=%r -> normalized=%r", NODE_NAME, raw, normalized)

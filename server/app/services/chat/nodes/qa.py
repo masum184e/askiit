@@ -61,7 +61,7 @@ def build_messages(state: GraphState, query: str) -> list:
 
 
 async def qa_node(state: GraphState) -> GraphState:
-    query = extract_query(state, prefer_normalized=True)
+    query = extract_query(state)
     failed = False
 
     if not query:

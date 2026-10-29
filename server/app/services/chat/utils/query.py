@@ -1,15 +1,19 @@
 from app.services.chat.utils.types import GraphState
 
-def extract_query(state: GraphState, prefer_normalized: bool = False) -> str:
-    """Return the latest user text from a string or a list of LangChain messages."""
-    query = (state.get("normalized_query") if prefer_normalized else None) or state.get("user_query", "")
+def extract_raw_query(state: GraphState) -> str:
+    """Latest user text exactly as the user sent it. Only the normalizer should use this."""
+    query = state.get("user_query", "")
     if isinstance(query, str):
         return query.strip()
-    return next(
-        (m.content for m in reversed(query) if getattr(m, "type", None) == "human"),
-        "",
-    ).strip()
+    for m in reversed(query or []):
+        if getattr(m, "type", None) == "human":
+            return content_to_text(m.content).strip()
+    return ""
 
+
+def extract_query(state: GraphState) -> str:
+    """Normalized query for every node after the normalizer (falls back to raw)."""
+    return (state.get("normalized_query") or "").strip() or extract_raw_query(state)
 
 def content_to_text(content) -> str:
     """Some providers return a list of content blocks instead of a string."""
