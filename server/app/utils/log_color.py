@@ -1,3 +1,5 @@
+import os
+import sys
 
 _COLOR_ENABLED = os.environ.get("NO_COLOR") is None and sys.stdout.isatty()
 

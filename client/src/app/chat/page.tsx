@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 import styles from "./markdown.module.css";
 
 const STORAGE_KEY = "chatHistory";
-const THREAD_KEY = "threadId";
+const THREAD_ID = "thread_id";
 const EXPIRY_KEY = "chatExpiry";
 const EXPIRY_TIME = 24 * 60 * 60 * 1000; // 24 hours in ms
 
@@ -21,7 +21,7 @@ const Page = () => {
     if (expiry && Date.now() - parseInt(expiry) > EXPIRY_TIME) {
       // Expired — clear
       localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(THREAD_KEY);
+      localStorage.removeItem(THREAD_ID);
       localStorage.removeItem(EXPIRY_KEY);
       return;
     }
@@ -57,10 +57,10 @@ const Page = () => {
     setLoading(true);
 
     try {
-      let threadId = localStorage.getItem(THREAD_KEY);
-      if (!threadId) {
-        threadId = crypto.randomUUID();
-        localStorage.setItem(THREAD_KEY, threadId);
+      let thread_id = localStorage.getItem(THREAD_ID);
+      if (!thread_id) {
+        thread_id = crypto.randomUUID();
+        localStorage.setItem(THREAD_ID, thread_id);
       }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
@@ -68,7 +68,7 @@ const Page = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           input: contentToSend,
-          session_id: threadId,
+          thread_id: thread_id,
         }),
       });
 

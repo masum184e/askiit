@@ -43,20 +43,19 @@ async def ask(payload: ChatRequest, request: Request):
     thread_id = payload.thread_id or str(uuid4())
     request_id = request.headers.get("x-request-id", "-")[:64]
 
-    log.info(
-        "chat request | req=%s thread=%s len=%d",
-        request_id, thread_id, len(user_query),
-    )
-    log.debug("chat query | thread=%s query=%r", thread_id, user_query)
-
     initial_state: GraphState = {
         "user_query": user_query,
         "trace": [],
     }
 
+    log.info(
+        "chat request | req_id=%s thread_id=%s query=%r len=%d initial_state=%s",
+        request_id, thread_id, user_query, len(user_query), initial_state
+    )
+
     graph = _get_graph()
 
-    with StepTimer(log, f"graph.ainvoke [thread={thread_id}]"):
+    with StepTimer(log, f"graph.ainvoke [thread_id={thread_id} [request_id=[{request_id}]]]"):
         new_state = await graph.ainvoke(
             initial_state,
             config=get_config(
@@ -71,11 +70,14 @@ async def ask(payload: ChatRequest, request: Request):
     trace = new_state.get("trace", [])
 
     log.info(
-        "chat done | req=%s thread=%s answer_len=%s trace_steps=%d",
+        "chat done | req=%s thread=%s answer_len=%s answer=%s...%s trace_steps=%d initial_state=%s",
         request_id,
         thread_id,
         len(answer) if isinstance(answer, str) else type(answer).__name__,
+        answer[:5],
+        answer[-5:],
         len(trace),
+        initial_state
     )
 
     return {

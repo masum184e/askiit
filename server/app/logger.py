@@ -80,8 +80,26 @@ def _configure_root():
     root = logging.getLogger()
     root.setLevel(LOG_LEVEL)
 
-    for noisy in ("matplotlib", "PIL", "urllib3", "tensorflow", "httpcore", "httpx"):
-        logging.getLogger(noisy).setLevel(logging.WARNING)
+    NOISY_LOGGERS = [
+        "groq",
+        "groq._base_client",
+        "httpx",
+        "httpcore",
+        "openai",
+        "langsmith",
+        "langsmith.client",
+        "urllib3",
+        "asyncio",
+        "matplotlib",
+        "PIL",
+        "urllib3",
+        "tensorflow",
+        "httpcore",
+        "httpx"
+    ]
+
+    for name in NOISY_LOGGERS:
+        logging.getLogger(name).setLevel(logging.WARNING)
 
     # --- Console: color if TTY, plain if piped ---
     console_handler = logging.StreamHandler(sys.stdout)
@@ -122,15 +140,18 @@ class StepTimer:
     def __init__(self, logger: logging.Logger, step_name: str):
         self.logger = logger
         self.step_name = step_name
-        self.start = None
+        self._start: float | None = None
+        self._end: float | None = None
 
     def __enter__(self):
-        self.start = time.time()
+        self._start = time.perf_counter()
+        self._end = None
         self.logger.info(f"START | {self.step_name}")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        elapsed = time.time() - self.start
+        self._end = time.perf_counter()
+        elapsed = self.elapsed
         if exc_type is None:
             self.logger.info(f"DONE  | {self.step_name} ({elapsed:.2f}s)")
         else:
@@ -139,3 +160,11 @@ class StepTimer:
                 exc_info=True,
             )
         return False
+
+    @property
+    def elapsed(self) -> float:
+        """Seconds elapsed. Works inside the with-block and after it."""
+        if self._start is None:
+            return 0.0
+        end = self._end if self._end is not None else time.perf_counter()
+        return end - self._start
