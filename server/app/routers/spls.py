@@ -1,7 +1,8 @@
+from enum import Enum
+
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import get_db
 from app.services.database.spls import (
@@ -9,77 +10,69 @@ from app.services.database.spls import (
     get_spl_service,
 )
 from app.utils.helper import error_response
+from app.logger import get_logger, StepTimer
 
-router = APIRouter(tags=["SPLs"])
+log = get_logger(__name__)
+
+router = APIRouter()
+
+
+class SplCategory(str, Enum):
+    spl1 = "spl1"
+    spl2 = "spl2"
+    spl3 = "spl3"
 
 
 @router.get("/spls", response_class=JSONResponse)
 async def list_spls(
     db: AsyncSession = Depends(get_db),
     search: str | None = Query(
-        None, description="Search by SPL name or description"
+        None, max_length=100, description="Search by SPL name or description"
     ),
+    category: SplCategory | None = Query(None, description="Filter by category"),
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=50),
-    category: str | None = Query(
-        None, description="Filter by category: spl1, spl2, spl3"
-    ),
 ):
-    try:
+    log.info(
+        "list_spls | page=%d size=%d search=%r category=%s",
+        page, size, search, cat,
+    )
+
+    with StepTimer(log, f"list_spls_service [page={page} size={size}]"):
         data = await list_spls_service(
             db=db,
             search=search,
-            category=category,
+            category=cat,
             page=page,
             size=size,
         )
-        return JSONResponse(status_code=200, content=data)
 
-    except SQLAlchemyError as e:
-        return error_response(
-            error_type="DatabaseError",
-            message=type(e).__name__,
-            hint="Check database connection or query.",
-            status_code=500,
-        )
-    except Exception as e:
-        return error_response(
-            error_type="ServerError",
-            message=str(e),
-            hint="Unexpected error while retrieving SPLs.",
-            status_code=500,
-        )
+    total = data.get("total") if isinstance(data, dict) else None
+    log.info(
+        "list_spls done | search=%r page=%d size=%d category=%s total=%s",
+        page, size, search, cat, total,
+    )
+    return JSONResponse(status_code=200, content=data)
 
 
-@router.get("/spls/{splid}", response_class=JSONResponse)
-async def get_spl_by_id(
-    splid: int,
+@router.get("/spls/{spl_id}", response_class=JSONResponse)
+async def get_spl(
+    spl_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    try:
-        spl = await get_spl_service(db=db, spl_id=splid)
+    log.info("get_spl | id=%d", spl_id)
 
-        if spl is None:
-            return error_response(
-                error_type="NotFound",
-                message=f"SPL with ID {splid} not found.",
-                hint="Check the ID and try again.",
-                status_code=404,
-            )
+    with StepTimer(log, f"get_spl_service [id={spl_id}]"):
+        spl = await get_spl_service(db=db, spl_id=spl_id)
 
-        return JSONResponse(status_code=200, content=spl)
-
-    except SQLAlchemyError as e:
+    if spl is None:
+        log.info("get_spl not found | id=%d", spl_id)
         return error_response(
-            error_type="DatabaseError",
-            message=type(e).__name__,
-            hint="Check database connection or model definitions.",
-            status_code=500,
+            error_type="NotFound",
+            message=f"SPL with ID {spl_id} not found.",
+            hint="Check the ID and try again.",
+            status_code=404,
         )
-    except Exception as e:
-        return error_response(
-            error_type="ServerError",
-            message=str(e),
-            hint="Unexpected error while retrieving SPL.",
-            status_code=500,
-        )
+
+    log.info("get_spl done | id=%d", spl_id)
+    return JSONResponse(status_code=200, content=spl)

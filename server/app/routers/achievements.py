@@ -1,8 +1,6 @@
-
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import get_db
 from app.services.database.achievements import (
@@ -10,86 +8,64 @@ from app.services.database.achievements import (
     get_achievement_service,
 )
 from app.utils.helper import error_response
+from app.logger import get_logger, StepTimer
 
-router = APIRouter(tags=["Achievements"])
+log = get_logger(__name__)
+
+router = APIRouter()
 
 
 @router.get("/achievements", response_class=JSONResponse)
 async def list_achievements(
     db: AsyncSession = Depends(get_db),
+    search: str | None = Query(
+        None, max_length=100, description="Search achievements"
+    ),
     page: int = Query(1, ge=1),
     size: int = Query(9, ge=1, le=50),
-    search: str | None = Query(None),
 ):
-    try:
+    log.info(
+        "list_achievements | page=%d size=%d search=%r",
+        page, size, search
+    )
+
+    with StepTimer(log, f"list_achievements_service [page={page} size={size}]"):
         data = await list_achievements_service(
             db=db,
+            search=search,
             page=page,
             size=size,
-            search=search,
         )
 
-        return JSONResponse(
-            status_code=200,
-            content=data,
-        )
-
-    except SQLAlchemyError as e:
-        return error_response(
-            error_type="DatabaseError",
-            message=type(e).__name__,
-            hint="Check database connection and query validity.",
-            status_code=500,
-        )
-
-    except Exception as e:
-        return error_response(
-            error_type="ServerError",
-            message=str(e),
-            hint="Unexpected error occurred during achievement listing.",
-            status_code=500,
-        )
+    total = data.get("total") if isinstance(data, dict) else None
+    log.info(
+        "list_achievements done | page=%d size=%d search=%r  total=%s",
+        page, size, search, total,
+    )
+    return JSONResponse(status_code=200, content=data)
 
 
-@router.get(
-    "/achievements/{achievement_id}",
-    response_class=JSONResponse,
-)
+@router.get("/achievements/{achievement_id}", response_class=JSONResponse)
 async def get_achievement(
     achievement_id: int,
     db: AsyncSession = Depends(get_db),
 ):
-    try:
+    log.info("get_achievement | id=%d", achievement_id)
+
+    with StepTimer(log, f"get_achievement_service [id={achievement_id}]"):
         achievement = await get_achievement_service(
             db=db,
             achievement_id=achievement_id,
         )
 
-        if achievement is None:
-            return error_response(
-                error_type="NotFound",
-                message=f"Achievement with ID {achievement_id} not found.",
-                hint="Check the ID and try again.",
-                status_code=404,
-            )
-
-        return JSONResponse(
-            status_code=200,
-            content=achievement,
-        )
-
-    except SQLAlchemyError as e:
+    if achievement is None:
+        log.info("get_achievement not found | id=%d", achievement_id)
         return error_response(
-            error_type="DatabaseError",
-            message=type(e).__name__,
-            hint="Check if the table/column exists and the connection is stable.",
-            status_code=500,
+            error_type="NotFound",
+            message=f"Achievement with ID {achievement_id} not found.",
+            hint="Check the ID and try again.",
+            status_code=404,
         )
 
-    except Exception as e:
-        return error_response(
-            error_type="ServerError",
-            message=str(e),
-            hint="Unexpected error occurred while retrieving achievement.",
-            status_code=500,
-        )
+    log.info("get_achievement done | id=%d", achievement_id)
+    return JSONResponse(status_code=200, content=achievement)

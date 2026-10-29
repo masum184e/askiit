@@ -1,5 +1,9 @@
-from decouple import config
 import os
+from decouple import config
+
+from app.logger import get_logger
+
+log = get_logger(__name__)
 
 def setup_tracing() -> bool:
 
@@ -17,15 +21,17 @@ def setup_tracing() -> bool:
     # os.environ["LANGSMITH_HIDE_INPUTS"] = "true"
     # os.environ["LANGSMITH_HIDE_OUTPUTS"] = "true"
 
-    logger.info("LangSmith tracing enabled (project: %s)", os.environ["LANGSMITH_PROJECT"])
+    log.info("LangSmith tracing enabled (project: %s)", os.environ["LANGSMITH_PROJECT"])
     return True
 
 
-def get_config(thread_id: str, run_name: str, tags: list[str]) -> dict:
+def get_config(thread_id: str, run_name: str, tags: list[str], request_id: str) -> dict:
     """Config for graph.ainvoke(): checkpointer thread + LangSmith metadata."""
     return {
         "configurable": {"thread_id": thread_id},
         "run_name": run_name,
         "tags": tags,
-        "metadata": {"session_id": thread_id},
+        "metadata": {
+            "request_id": request_id,
+        },
     }
