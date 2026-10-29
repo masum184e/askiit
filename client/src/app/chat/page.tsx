@@ -184,7 +184,7 @@ const Page = () => {
             <button
               onClick={async () => await handleSend(input)}
               disabled={loading || !input.trim()}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-600 rounded-lg transition-all duration-200"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 text-gray-600 rounded-lg transition-all duration-200 rotate-90"
             >
               <svg
                 className="w-4 h-4"

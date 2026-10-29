@@ -14,7 +14,7 @@ NODE_NAME = "intent_classifier"
 DEFAULT_INTENT = "qa"
 
 _THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL)
-_INTENT_RE = re.compile(r"\b(cf|rag|db|qa)\b")
+_INTENT_RE = re.compile(r"\b(cf|rag|mcp|qa)\b")
 
 SYSTEM_PROMPT = dedent("""\
 You are a strict query classifier.
@@ -36,7 +36,7 @@ Your task is to classify the user query into exactly one of these four categorie
   - Clubs (e.g., IT Club), labs, academic facilities
   - Anything found in official departmental documents
 
-- "db": queries answered by the structured student database:
+- "mcp": queries answered by the structured student database:
   - Retrieving students, SPL projects, achievements, papers, personal interests
   - Filtering or searching by batch/session, student ID, mentor
   - Listing SPL projects or students by filters
@@ -48,7 +48,7 @@ Your task is to classify the user query into exactly one of these four categorie
   - Career advice, personal help, general AI interaction
 
 Rules:
-- Respond with only one word: cf, db, rag, or qa
+- Respond with only one word: cf, mcp, rag, or qa
 - Do not explain, justify, or use punctuation
 - Be strict and unambiguous
 
@@ -56,16 +56,16 @@ Examples:
 - Query: "List of IIT department faculty" → rag
 - Query: "Who is the advisor of IT Club?" → rag
 - Query: "What is the syllabus of CSE1101?" → rag
-- Query: "Find me projects done by batch 2020 - 2021" → db
-- Query: "List of students from session 2020-2021" → db
-- Query: "Who are the SPL1 mentors?" → db
-- Query: "Show me the latest SPL projects" → db
+- Query: "Find me projects done by batch 2020 - 2021" → mcp
+- Query: "List of students from session 2020-2021" → mcp
+- Query: "Who are the SPL1 mentors?" → mcp
+- Query: "Show me the latest SPL projects" → mcp
 - Query: "My Codeforces handle is not showing up" → cf
 - Query: "What is the rating of tourist?" → cf
 - Query: "Upcoming Codeforces contests" → cf
 - Query: "Explain quicksort algorithm" → qa
 - Query: "Help me debug my SQL join" → qa
-- Query: "What is indexing in DBMS?" → qa
+- Query: "What is indexing in mcpMS?" → qa
 - Query: "Help me come up with a project idea" → qa
 - Query: "Suggest a competitive programming strategy" → qa
 """)
