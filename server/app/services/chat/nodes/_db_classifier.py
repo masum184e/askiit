@@ -1,5 +1,5 @@
 from app.services.chat.utils.types import GraphState
-from app.services.chat.model import model
+from app.services.chat.llm_model import model
 
 def db_classifier(state: GraphState) -> GraphState:
     query = state.get("normalized_query", "").strip()
