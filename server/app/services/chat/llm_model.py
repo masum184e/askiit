@@ -5,7 +5,8 @@ from langchain_groq import ChatGroq
 model = ChatGroq(
     model="qwen/qwen3.8-27b",
     api_key=config("GROQ_API_KEY"),
-    temperature=0.7,
+    temperature=0,
+    max_tokens=100,
 )
 
 # from langchain_google_genai import ChatGoogleGenerativeAI

@@ -1,3 +1,4 @@
+
 import time
 from contextlib import asynccontextmanager
 
@@ -11,38 +12,74 @@ from app.routers import chat, achievements, students, spls
 from app.services.chat.tracing import setup_tracing
 from app.database import engine
 from app.utils.helper import error_response
-from app.utils.log_color import color_for_status, FAILED_COLOR, RESET, REQUEST_COLOR
+from app.utils.log_color import (
+    color_for_status,
+    FAILED_COLOR,
+    RESET,
+    REQUEST_COLOR,
+)
 
 log = get_logger(__name__)
 
 
-# Lifespan: log clean startup / shutdown events
+# Lifespan
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    log.info("Warming DB pool…")
+    log.info("Starting AskIIT API...")
+
+    # Database connectivity check
     try:
+        log.info("Checking database connection...")
+
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
-        log.info("DB pool warm — startup complete")
+
+        log.info("Database connection successful")
+
     except Exception:
-        log.exception("DB warm-up failed — first request may be slow")
+        log.exception("Database connection failed")
+
+    # Shutdown
     yield
+
     log.info("AskIIT API shutting down")
 
-
-# App + tracing
-log.info("Booting AskIIT API…")
-
-with StepTimer(log, "Tracing setup"):
-    setup_tracing()
-
-app = FastAPI(title="AskIIT API", lifespan=lifespan)
+    # Dispose database connections
+    try:
+        await engine.dispose()
+        log.info("Database connections closed")
+    except Exception:
+        log.exception("Database shutdown failed")
 
 
-# Global exception handlers (routes only contain happy path + 404s)
+# Application startup
+log.info("Booting AskIIT API...")
+
+# Tracing setup
+try:
+    with StepTimer(log, "Tracing setup"):
+        setup_tracing()
+except Exception:
+    log.exception("Tracing initialization failed")
+
+
+app = FastAPI(
+    title="AskIIT API",
+    description="AskIIT Backend API",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+
+# Exception handlers
 @app.exception_handler(SQLAlchemyError)
 async def sqlalchemy_handler(request: Request, exc: SQLAlchemyError):
-    log.exception("DB error | %s %s", request.method, request.url.path)
+    log.exception(
+        "DB error | %s %s",
+        request.method,
+        request.url.path,
+    )
+
     return error_response(
         error_type="DatabaseError",
         message="Database error.",
@@ -53,7 +90,12 @@ async def sqlalchemy_handler(request: Request, exc: SQLAlchemyError):
 
 @app.exception_handler(Exception)
 async def unhandled_handler(request: Request, exc: Exception):
-    log.exception("Unhandled error | %s %s", request.method, request.url.path)
+    log.exception(
+        "Unhandled error | %s %s",
+        request.method,
+        request.url.path,
+    )
+
     return error_response(
         error_type="ServerError",
         message="Internal server error.",
@@ -66,29 +108,45 @@ async def unhandled_handler(request: Request, exc: Exception):
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = time.perf_counter()
+
     log.debug(
         "%s--> %s %s%s",
-        REQUEST_COLOR, request.method, request.url.path, RESET,
+        REQUEST_COLOR,
+        request.method,
+        request.url.path,
+        RESET,
     )
 
     try:
         response = await call_next(request)
+
     except Exception:
         elapsed = time.perf_counter() - start
-        # No exc_info: the exception handler above already logs the traceback.
+
         log.error(
             "%s<-- %s %s FAILED after %.3fs%s",
-            FAILED_COLOR, request.method, request.url.path, elapsed, RESET,
+            FAILED_COLOR,
+            request.method,
+            request.url.path,
+            elapsed,
+            RESET,
         )
+
         raise
 
     elapsed = time.perf_counter() - start
     color = color_for_status(response.status_code)
+
     log.info(
         "%s<-- %s %s %d (%.3fs)%s",
-        color, request.method, request.url.path,
-        response.status_code, elapsed, RESET,
+        color,
+        request.method,
+        request.url.path,
+        response.status_code,
+        elapsed,
+        RESET,
     )
+
     return response
 
 
@@ -97,7 +155,6 @@ ALLOWED_ORIGINS = [
     "https://askiit.vercel.app",
     "http://localhost:3000",
 ]
-log.info("CORS allowed origins: %s", ALLOWED_ORIGINS)
 
 app.add_middleware(
     CORSMiddleware,
@@ -107,12 +164,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Routers
 _ROUTERS = [
-    (chat.router,         "Chat"),
+    (chat.router, "Chat"),
     (achievements.router, "Achievements"),
-    (students.router,     "Students"),
-    (spls.router,         "SPLs"),
+    (students.router, "Students"),
+    (spls.router, "SPLs"),
 ]
 
 for router, tag in _ROUTERS:
@@ -120,21 +178,28 @@ for router, tag in _ROUTERS:
     log.info("Registered router '%s' under /api", tag)
 
 
+# Health check
+@app.get("/health", tags=["Health"])
+async def health():
+    return {"status": "healthy"}
+
+
 # Root endpoint
 @app.get("/", tags=["Root"])
 async def root():
-    log.info("Root health-check hit")
-    return {"message": "AskIIT FastAPI backend is running"}
+    return {
+        "message": "AskIIT FastAPI backend is running",
+        "status": "healthy",
+    }
 
 
-# Entry point
+# Local development entry point
 if __name__ == "__main__":
     import uvicorn
 
-    log.info("Launching uvicorn -> http://127.0.0.1:8000 (reload=True)")
     uvicorn.run(
         "app.main:app",
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=8000,
         reload=True,
         log_config=None,

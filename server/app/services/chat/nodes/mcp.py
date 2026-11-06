@@ -13,7 +13,7 @@ from app.services.chat.utils.types import GraphState
 log = get_logger(__name__)
 
 NODE_NAME = "mcp"
-MCP_URL = config("ASK_IIT_MCP_URL", "http://127.0.0.1:8001/mcp")
+MCP_URL = config("ASK_IIT_MCP_URL", "https://askiit-mcp.onrender.com/mcp")
 TIMEOUT_S = 45
 RECURSION_LIMIT = 12  # caps agent <-> tool round trips
 FALLBACK_MESSAGE = "Sorry, I couldn't fetch the information right now. Please try again."
