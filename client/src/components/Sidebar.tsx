@@ -4,6 +4,7 @@ import {
   Code,
   Users,
   HelpCircle,
+  ClipboardList,
   Trophy,
   Menu,
   X,
@@ -20,6 +21,7 @@ const navigationItems = [
   { icon: Code, label: "SPL", view: "/spls" },
   { icon: Users, label: "Students", view: "/students" },
   { icon: HelpCircle, label: "Question", view: "/questions" },
+  { icon: ClipboardList, label: "Results", view: "/results" },
   { icon: Trophy, label: "Achievement", view: "/achievements" },
   { icon: UserCircle, label: "Profile", view: "/profile" },
   { icon: Settings, label: "Settings", view: "/settings" },
@@ -73,7 +75,7 @@ export const Sidebar = () => {
                 href={item.view}
                 className={`w-full cursor-pointer flex items-center gap-3 px-4 py-3 text-slate-700 rounded-lg hover:bg-slate-100 transition-all duration-200 group ${
                   isActive
-                    ? "bg-blue-600 text-white"
+                    ? "bg-blue-600 text-white hover:bg-blue-600"
                     // ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white"
                     : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 }`}
